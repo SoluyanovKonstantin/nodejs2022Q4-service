@@ -1,4 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
+import { IsNotEmpty } from 'class-validator';
 
 export interface User {
     id: string; // uuid v4
@@ -10,17 +11,21 @@ export interface User {
 }
 
 export class UserDto {
+    @IsNotEmpty()
     @ApiProperty()
     login: string;
 
+    @IsNotEmpty()
     @ApiProperty()
     password: string;
 }
 
 export class UpdatePasswordDto {
+    @IsNotEmpty()
     @ApiProperty()
     oldPassword: string; // previous password
 
+    @IsNotEmpty()
     @ApiProperty()
     newPassword: string; // new password
 }

@@ -3,77 +3,51 @@ import {
     Controller,
     Delete,
     Get,
-    HttpException,
-    HttpStatus,
+    HttpCode,
     Param,
+    ParseUUIDPipe,
     Post,
     Put,
 } from '@nestjs/common';
 import { UpdatePasswordDto, User, UserDto } from './user.interface';
 import { ApiParam, ApiTags } from '@nestjs/swagger';
-import { v4 as uuid } from 'uuid';
-
-const users: User[] = [];
+import { UsersService } from './users.service';
 
 @ApiTags('user')
 @Controller('user')
 export class UsersController {
+    constructor(private usersService: UsersService) {}
+
     @Get()
     getUsers(): User[] {
-        return users;
+        return this.usersService.getUsers();
     }
 
     @ApiParam({ name: 'id' })
     @Get(':id')
-    getUser(@Param() id: string): User {
-        return users.find((user) => user.id === id);
+    getUser(@Param('id', ParseUUIDPipe) id: string): User {
+        return this.usersService.getUser(id);
     }
 
     @Post()
     async createUser(@Body() userDto: UserDto) {
-        const userToDB: User = {
-            id: uuid(),
-            login: userDto.login,
-            password: userDto.password,
-            version: 0,
-            createdAt: new Date().getTime(),
-            updatedAt: new Date().getTime(),
-        };
+        const userToDB = this.usersService.createUser(userDto);
 
-        users.push(userToDB);
-        return;
+        return userToDB;
     }
 
+    @ApiParam({ name: 'id' })
     @Put(':id')
     updateUserPassword(
-        @Param() id: string,
+        @Param('id', ParseUUIDPipe) id: string,
         @Body() body: UpdatePasswordDto,
     ): User {
-        const newUser = users.find((user) => user.id === id);
-        if (!newUser) {
-            throw new HttpException(
-                'user does not exist',
-                HttpStatus.BAD_REQUEST,
-            );
-        }
-        if (newUser.password === body.oldPassword) {
-            newUser.password = body.newPassword;
-            return newUser;
-        } else {
-            throw new HttpException('wrong password', HttpStatus.FORBIDDEN);
-        }
+        return this.usersService.updateUserPassword(body, id);
     }
 
+    @HttpCode(204)
     @Delete(':id')
-    deleteUser(@Param() id: string) {
-        const index = users.findIndex((user) => user.id === id);
-        if (index === -1) {
-            throw new HttpException(
-                'user does not exist',
-                HttpStatus.BAD_REQUEST,
-            );
-        }
-
-        users.splice(index, 1);
+    deleteUser(@Param('id', ParseUUIDPipe) id: string) {
+        this.usersService.deleteUser(id);
     }
 }
