@@ -8,18 +8,21 @@ import {
     ParseUUIDPipe,
     Post,
     Put,
+    UseInterceptors,
 } from '@nestjs/common';
 import { UpdatePasswordDto, User, UserDto } from './user.interface';
 import { ApiParam, ApiTags } from '@nestjs/swagger';
 import { UsersService } from './users.service';
+import { UsersInterceptor } from 'src/users.interceptor';
 
+@UseInterceptors(new UsersInterceptor())
 @ApiTags('user')
 @Controller('user')
 export class UsersController {
     constructor(private usersService: UsersService) {}
 
     @Get()
-    getUsers(): User[] {
+    getUsers() {
         return this.usersService.getUsers();
     }
 
