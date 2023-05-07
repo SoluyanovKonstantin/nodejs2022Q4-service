@@ -11,6 +11,10 @@ export class UsersInterceptor implements NestInterceptor {
     intercept(context: ExecutionContext, next: CallHandler): Observable<any> {
         return next.handle().pipe(
             map((data) => {
+                if (!data) {
+                    return data;
+                }
+                data = JSON.parse(JSON.stringify(data));
                 if (data.length) {
                     data = data.map((user) => {
                         user.password = undefined;
