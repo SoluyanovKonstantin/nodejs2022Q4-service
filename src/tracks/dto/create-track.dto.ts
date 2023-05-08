@@ -1,14 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsNotEmpty } from 'class-validator';
-export interface Tracks {
-    id: string; // uuid v4
-    name: string;
-    artistId: string | null; // refers to Artist
-    albumId: string | null; // refers to Album
-    duration: number; // integer number
-}
 
-export class TrackDto {
+export class CreateTrackDto {
     @ApiProperty()
     @IsNotEmpty()
     name: string;

@@ -1,9 +1,10 @@
 import { ApiParam } from '@nestjs/swagger';
-import { TrackDto, Tracks } from './tracks.interface';
 import { HttpException, Injectable, HttpStatus } from '@nestjs/common';
 import { v4 } from 'uuid';
+import { Track } from './entities/track.entity';
+import { CreateTrackDto } from './dto/create-track.dto';
 
-const tracks: Tracks[] = [];
+const tracks: Track[] = [];
 
 @Injectable()
 export class TracksService {
@@ -20,7 +21,7 @@ export class TracksService {
         return track;
     }
 
-    createTrack(trackDTO: TrackDto) {
+    createTrack(trackDTO: CreateTrackDto) {
         tracks.push({
             id: v4(),
             name: trackDTO.name,
@@ -32,7 +33,7 @@ export class TracksService {
     }
 
     @ApiParam({ name: 'id' })
-    updateTrack(id: string, trackDto: TrackDto) {
+    updateTrack(id: string, trackDto: CreateTrackDto) {
         const track = tracks.find((track) => track.id === id);
         track.albumId = trackDto.albumId;
         track.artistId = trackDto.artistId;

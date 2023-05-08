@@ -4,6 +4,10 @@ import { AppService } from './app.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { UsersModule } from './users/users.module';
 import { TracksModule } from './tracks/tracks.module';
+import { ArtistsModule } from './artists/artists.module';
+import { User } from './users/entities/user.entity';
+import { Track } from './tracks/entities/track.entity';
+import { Artist } from './artists/entities/artist.entity';
 
 @Module({
     imports: [
@@ -14,11 +18,12 @@ import { TracksModule } from './tracks/tracks.module';
             username: 'postgres',
             password: 'diablo22',
             database: 'nodejs2022Q4',
-            entities: [],
+            entities: [User, Track, Artist],
             synchronize: true,
         }),
         UsersModule,
         TracksModule,
+        ArtistsModule,
     ],
     controllers: [AppController],
     providers: [AppService],

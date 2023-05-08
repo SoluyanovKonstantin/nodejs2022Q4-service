@@ -10,10 +10,12 @@ import {
     Put,
     UseInterceptors,
 } from '@nestjs/common';
-import { UpdatePasswordDto, User, UserDto } from './user.interface';
 import { ApiParam, ApiTags } from '@nestjs/swagger';
 import { UsersService } from './users.service';
 import { UsersInterceptor } from 'src/users.interceptor';
+import { User } from './entities/user.entity';
+import { CreateUserDto } from './dto/create-user.dto';
+import { UpdateUserDto } from './dto/update-user.dto';
 
 @UseInterceptors(new UsersInterceptor())
 @ApiTags('user')
@@ -33,7 +35,7 @@ export class UsersController {
     }
 
     @Post()
-    async createUser(@Body() userDto: UserDto) {
+    async createUser(@Body() userDto: CreateUserDto) {
         const userToDB = this.usersService.createUser(userDto);
 
         return userToDB;
@@ -43,7 +45,7 @@ export class UsersController {
     @Put(':id')
     updateUserPassword(
         @Param('id', ParseUUIDPipe) id: string,
-        @Body() body: UpdatePasswordDto,
+        @Body() body: UpdateUserDto,
     ): User {
         return this.usersService.updateUserPassword(body, id);
     }

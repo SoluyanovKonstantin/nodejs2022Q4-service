@@ -1,12 +1,14 @@
-import { UpdatePasswordDto, User, UserDto } from './user.interface';
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { v4 as uuid } from 'uuid';
+import { User } from './entities/user.entity';
+import { CreateUserDto } from './dto/create-user.dto';
+import { UpdateUserDto } from './dto/update-user.dto';
 
 const users: User[] = [];
 
 @Injectable()
 export class UsersService {
-    createUser(userDto: UserDto) {
+    createUser(userDto: CreateUserDto) {
         const userToDB: User = {
             id: uuid(),
             login: userDto.login,
@@ -33,7 +35,7 @@ export class UsersService {
         return user;
     }
 
-    updateUserPassword(updatePasswordDto: UpdatePasswordDto, id: string) {
+    updateUserPassword(updatePasswordDto: UpdateUserDto, id: string) {
         const newUser = users.find((user) => user.id === id);
         if (!newUser) {
             throw new HttpException(

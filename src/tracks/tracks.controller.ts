@@ -11,7 +11,8 @@ import {
     Put,
 } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
-import { TrackDto, Tracks } from './tracks.interface';
+import { CreateTrackDto } from './dto/create-track.dto';
+import { Track } from './entities/track.entity';
 
 @ApiTags('track')
 @Controller('track')
@@ -19,7 +20,7 @@ export class TracksController {
     constructor(private tracksService: TracksService) {}
 
     @Get()
-    getUTracks(): Tracks[] {
+    getUTracks(): Track[] {
         return this.tracksService.getTracks();
     }
 
@@ -29,14 +30,14 @@ export class TracksController {
     }
 
     @Post()
-    createTrack(@Body() trackDTO: TrackDto) {
+    createTrack(@Body() trackDTO: CreateTrackDto) {
         return this.tracksService.createTrack(trackDTO);
     }
 
     @Put(':id')
     updateTrack(
         @Param('id', ParseUUIDPipe) id: string,
-        @Body() trackDto: TrackDto,
+        @Body() trackDto: CreateTrackDto,
     ) {
         return this.tracksService.updateTrack(id, trackDto);
     }
