@@ -8,6 +8,7 @@ import { ArtistsModule } from './artists/artists.module';
 import { User } from './users/entities/user.entity';
 import { Track } from './tracks/entities/track.entity';
 import { Artist } from './artists/entities/artist.entity';
+import { AlbumsModule } from './albums/albums.module';
 
 @Module({
     imports: [
@@ -24,6 +25,7 @@ import { Artist } from './artists/entities/artist.entity';
         UsersModule,
         TracksModule,
         ArtistsModule,
+        AlbumsModule,
     ],
     controllers: [AppController],
     providers: [AppService],
