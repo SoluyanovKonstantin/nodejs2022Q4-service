@@ -13,7 +13,7 @@ export class UsersService {
             id: uuid(),
             login: userDto.login,
             password: userDto.password,
-            version: 0,
+            version: 1,
             createdAt: new Date().getTime(),
             updatedAt: new Date().getTime(),
         };
@@ -38,12 +38,11 @@ export class UsersService {
     updateUserPassword(updatePasswordDto: UpdateUserDto, id: string) {
         const newUser = users.find((user) => user.id === id);
         if (!newUser) {
-            throw new HttpException(
-                `user doesn't exist`,
-                HttpStatus.BAD_REQUEST,
-            );
+            throw new HttpException(`user doesn't exist`, HttpStatus.NOT_FOUND);
         }
         if (newUser.password === updatePasswordDto.oldPassword) {
+            newUser.version++;
+            newUser.updatedAt = new Date().getTime();
             newUser.password = updatePasswordDto.newPassword;
             return newUser;
         } else {
@@ -54,10 +53,7 @@ export class UsersService {
     deleteUser(id: string) {
         const index = users.findIndex((user) => user.id === id);
         if (index === -1) {
-            throw new HttpException(
-                `user doesn't exist`,
-                HttpStatus.BAD_REQUEST,
-            );
+            throw new HttpException(`user doesn't exist`, HttpStatus.NOT_FOUND);
         }
 
         users.splice(index, 1);

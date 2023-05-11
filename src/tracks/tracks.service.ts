@@ -1,4 +1,3 @@
-import { ApiParam } from '@nestjs/swagger';
 import { HttpException, Injectable, HttpStatus } from '@nestjs/common';
 import { v4 } from 'uuid';
 import { Track } from './entities/track.entity';
@@ -12,7 +11,6 @@ export class TracksService {
         return tracks;
     }
 
-    @ApiParam({ name: 'id' })
     getTrack(id: string) {
         const track = tracks.find((track) => track.id === id);
         if (!track) {
@@ -32,9 +30,9 @@ export class TracksService {
         return tracks[tracks.length - 1];
     }
 
-    @ApiParam({ name: 'id' })
     updateTrack(id: string, trackDto: CreateTrackDto) {
         const track = tracks.find((track) => track.id === id);
+        if (!track) throw new HttpException('not found', HttpStatus.NOT_FOUND);
         track.albumId = trackDto.albumId;
         track.artistId = trackDto.artistId;
         track.duration = trackDto.duration;
@@ -42,7 +40,6 @@ export class TracksService {
         return track;
     }
 
-    @ApiParam({ name: 'id' })
     deleteTrack(id: string) {
         const trackIndex = tracks.findIndex((track) => track.id === id);
         if (trackIndex === -1) {
@@ -50,5 +47,9 @@ export class TracksService {
         }
         tracks.splice(trackIndex, 1);
         return;
+    }
+
+    getTrackByAlbumId(albumId: string) {
+        return tracks.find((track) => track.albumId === albumId);
     }
 }

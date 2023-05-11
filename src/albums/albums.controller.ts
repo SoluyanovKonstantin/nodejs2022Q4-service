@@ -3,20 +3,25 @@ import {
     Get,
     Post,
     Body,
-    Patch,
     Param,
     Delete,
+    ParseUUIDPipe,
+    HttpCode,
+    HttpStatus,
+    Put,
 } from '@nestjs/common';
 import { AlbumsService } from './albums.service';
 import { CreateAlbumDto } from './dto/create-album.dto';
 import { UpdateAlbumDto } from './dto/update-album.dto';
+import { ApiTags } from '@nestjs/swagger';
 
-@Controller('albums')
+@ApiTags('album')
+@Controller('album')
 export class AlbumsController {
     constructor(private readonly albumsService: AlbumsService) {}
 
     @Post()
-    create(@Body() createAlbumDto: CreateAlbumDto): string {
+    create(@Body() createAlbumDto: CreateAlbumDto) {
         return this.albumsService.create(createAlbumDto);
     }
 
@@ -26,17 +31,21 @@ export class AlbumsController {
     }
 
     @Get(':id')
-    findOne(@Param('id') id: string) {
-        return this.albumsService.findOne(+id);
+    findOne(@Param('id', ParseUUIDPipe) id: string) {
+        return this.albumsService.findOne(id);
     }
 
-    @Patch(':id')
-    update(@Param('id') id: string, @Body() updateAlbumDto: UpdateAlbumDto) {
-        return this.albumsService.update(+id, updateAlbumDto);
+    @Put(':id')
+    update(
+        @Param('id', ParseUUIDPipe) id: string,
+        @Body() updateAlbumDto: UpdateAlbumDto,
+    ) {
+        return this.albumsService.update(id, updateAlbumDto);
     }
 
+    @HttpCode(HttpStatus.NO_CONTENT)
     @Delete(':id')
-    remove(@Param('id') id: string) {
-        return this.albumsService.remove(+id);
+    remove(@Param('id', ParseUUIDPipe) id: string) {
+        return this.albumsService.remove(id);
     }
 }

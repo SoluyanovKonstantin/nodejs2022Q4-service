@@ -1,26 +1,62 @@
-import { Injectable } from '@nestjs/common';
+import { TracksService } from 'src/tracks/tracks.service';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { CreateAlbumDto } from './dto/create-album.dto';
 import { UpdateAlbumDto } from './dto/update-album.dto';
+import { Album } from './entities/album.entity';
+import { v4 } from 'uuid';
+
+const albums: Album[] = [];
 
 @Injectable()
 export class AlbumsService {
-  create(createAlbumDto: CreateAlbumDto) {
-    return 'This action adds a new album';
-  }
+    constructor(private tracksService: TracksService) {}
 
-  findAll() {
-    return `This action returns all albums`;
-  }
+    create(createAlbumDto: CreateAlbumDto) {
+        albums.push({
+            id: v4(),
+            ...createAlbumDto,
+        });
+        return albums[albums.length - 1];
+    }
 
-  findOne(id: number) {
-    return `This action returns a #${id} album`;
-  }
+    findAll() {
+        return albums;
+    }
 
-  update(id: number, updateAlbumDto: UpdateAlbumDto) {
-    return `This action updates a #${id} album`;
-  }
+    findOne(id: string) {
+        const album = albums.find((album) => album.id === id);
+        if (!album) throw new HttpException('not found', HttpStatus.NOT_FOUND);
+        return album;
+    }
 
-  remove(id: number) {
-    return `This action removes a #${id} album`;
-  }
+    update(id: string, updateAlbumDto: UpdateAlbumDto) {
+        const album = albums.find((album) => {
+            if (album.id === id) {
+                album.artistId = updateAlbumDto.artistId;
+                album.name = updateAlbumDto.name;
+                album.year = updateAlbumDto.year;
+                return true;
+            }
+
+            return false;
+        });
+
+        if (!album) throw new HttpException('not found', HttpStatus.NOT_FOUND);
+
+        return album;
+    }
+
+    remove(id: string) {
+        const findIndex = albums.findIndex((artist) => artist.id === id);
+        if (findIndex === -1)
+            throw new HttpException('not found', HttpStatus.NOT_FOUND);
+
+        const track = this.tracksService.getTrackByAlbumId(id);
+        if (track) {
+            track.albumId = null;
+        }
+
+        albums.splice(findIndex, 1);
+        return;
+    }
 }

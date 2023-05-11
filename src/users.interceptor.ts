@@ -15,7 +15,7 @@ export class UsersInterceptor implements NestInterceptor {
                     return data;
                 }
                 data = JSON.parse(JSON.stringify(data));
-                if (data.length) {
+                if (Array.isArray(data)) {
                     data = data.map((user) => {
                         user.password = undefined;
                         return user;

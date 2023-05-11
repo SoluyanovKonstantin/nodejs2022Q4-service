@@ -4,20 +4,18 @@ import {
     Delete,
     Get,
     HttpCode,
+    HttpStatus,
     Param,
     ParseUUIDPipe,
     Post,
     Put,
-    UseInterceptors,
 } from '@nestjs/common';
 import { ApiParam, ApiTags } from '@nestjs/swagger';
 import { UsersService } from './users.service';
-import { UsersInterceptor } from 'src/users.interceptor';
 import { User } from './entities/user.entity';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 
-@UseInterceptors(new UsersInterceptor())
 @ApiTags('user')
 @Controller('user')
 export class UsersController {
@@ -50,7 +48,7 @@ export class UsersController {
         return this.usersService.updateUserPassword(body, id);
     }
 
-    @HttpCode(204)
+    @HttpCode(HttpStatus.NO_CONTENT)
     @Delete(':id')
     deleteUser(@Param('id', ParseUUIDPipe) id: string) {
         this.usersService.deleteUser(id);

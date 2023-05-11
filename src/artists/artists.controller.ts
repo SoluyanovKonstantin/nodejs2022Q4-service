@@ -3,10 +3,12 @@ import {
     Get,
     Post,
     Body,
-    Patch,
     Param,
     Delete,
     ParseUUIDPipe,
+    HttpCode,
+    HttpStatus,
+    Put,
 } from '@nestjs/common';
 import { ArtistsService } from './artists.service';
 import { CreateArtistDto } from './dto/create-artist.dto';
@@ -33,7 +35,7 @@ export class ArtistsController {
         return this.artistsService.findOne(id);
     }
 
-    @Patch(':id')
+    @Put(':id')
     update(
         @Param('id', ParseUUIDPipe) id: string,
         @Body() updateArtistDto: UpdateArtistDto,
@@ -41,6 +43,7 @@ export class ArtistsController {
         return this.artistsService.update(id, updateArtistDto);
     }
 
+    @HttpCode(HttpStatus.NO_CONTENT)
     @Delete(':id')
     remove(@Param('id', ParseUUIDPipe) id: string) {
         return this.artistsService.remove(id);

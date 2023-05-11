@@ -21,7 +21,9 @@ export class ArtistsService {
     }
 
     findOne(id: string) {
-        return artists.find((artist) => artist.id === id);
+        const artist = artists.find((artist) => artist.id === id);
+        if (!artist) throw new HttpException('not found', HttpStatus.NOT_FOUND);
+        return artist;
     }
 
     update(id: string, updateArtistDto: UpdateArtistDto) {

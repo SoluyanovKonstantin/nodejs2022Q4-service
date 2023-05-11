@@ -5,12 +5,13 @@ import {
     Delete,
     Get,
     HttpCode,
+    HttpStatus,
     Param,
     ParseUUIDPipe,
     Post,
     Put,
 } from '@nestjs/common';
-import { ApiTags } from '@nestjs/swagger';
+import { ApiParam, ApiTags } from '@nestjs/swagger';
 import { CreateTrackDto } from './dto/create-track.dto';
 import { Track } from './entities/track.entity';
 
@@ -24,6 +25,7 @@ export class TracksController {
         return this.tracksService.getTracks();
     }
 
+    @ApiParam({ name: 'id' })
     @Get(':id')
     getTrack(@Param('id', ParseUUIDPipe) id: string) {
         return this.tracksService.getTrack(id);
@@ -34,6 +36,7 @@ export class TracksController {
         return this.tracksService.createTrack(trackDTO);
     }
 
+    @ApiParam({ name: 'id' })
     @Put(':id')
     updateTrack(
         @Param('id', ParseUUIDPipe) id: string,
@@ -42,7 +45,8 @@ export class TracksController {
         return this.tracksService.updateTrack(id, trackDto);
     }
 
-    @HttpCode(204)
+    @ApiParam({ name: 'id' })
+    @HttpCode(HttpStatus.NO_CONTENT)
     @Delete(':id')
     deleteTrack(@Param('id', ParseUUIDPipe) id: string) {
         return this.tracksService.deleteTrack(id);
