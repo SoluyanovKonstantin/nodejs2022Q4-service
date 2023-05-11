@@ -5,6 +5,14 @@ import { CreateTrackDto } from './dto/create-track.dto';
 
 const tracks: Track[] = [];
 
+export enum TrackPropery {
+    Id = 'id',
+    Name = 'name',
+    ArtistId = 'artistId',
+    AlbumId = 'albumId',
+    Duration = 'duration',
+}
+
 @Injectable()
 export class TracksService {
     getTracks() {
@@ -17,6 +25,10 @@ export class TracksService {
             throw new HttpException('not found', HttpStatus.NOT_FOUND);
         }
         return track;
+    }
+
+    getTrackByProperty(value: string, prop: TrackPropery) {
+        return tracks.find((track) => track[prop] === value);
     }
 
     createTrack(trackDTO: CreateTrackDto) {

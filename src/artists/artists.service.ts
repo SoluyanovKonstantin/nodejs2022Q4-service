@@ -1,13 +1,20 @@
+import { TrackPropery, TracksService } from 'src/tracks/tracks.service';
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { CreateArtistDto } from './dto/create-artist.dto';
 import { UpdateArtistDto } from './dto/update-artist.dto';
 import { Artist } from './entities/artist.entity';
 import { v4 } from 'uuid';
+import { AlbumProperty, AlbumsService } from 'src/albums/albums.service';
 
 const artists: Artist[] = [];
 
 @Injectable()
 export class ArtistsService {
+    constructor(
+        private tracksService: TracksService,
+        private albumsService: AlbumsService,
+    ) {}
+
     create(createArtistDto: CreateArtistDto) {
         artists.push({
             id: v4(),
@@ -46,6 +53,20 @@ export class ArtistsService {
         const findIndex = artists.findIndex((artist) => artist.id === id);
         if (findIndex === -1)
             throw new HttpException('not found', HttpStatus.NOT_FOUND);
+
+        const track = this.tracksService.getTrackByProperty(
+            id,
+            TrackPropery.ArtistId,
+        );
+
+        if (track) track.artistId = null;
+
+        const album = this.albumsService.getAlbumByProperty(
+            id,
+            AlbumProperty.ArtistId,
+        );
+
+        if (album) album.artistId = null;
 
         artists.splice(findIndex, 1);
         return;

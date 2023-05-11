@@ -7,6 +7,13 @@ import { v4 } from 'uuid';
 
 const albums: Album[] = [];
 
+export enum AlbumProperty {
+    Id = 'id', // uuid v4
+    Name = 'name',
+    Year = 'year',
+    ArtistId = 'artistId', // refers to Artist
+}
+
 @Injectable()
 export class AlbumsService {
     constructor(private tracksService: TracksService) {}
@@ -27,6 +34,10 @@ export class AlbumsService {
         const album = albums.find((album) => album.id === id);
         if (!album) throw new HttpException('not found', HttpStatus.NOT_FOUND);
         return album;
+    }
+
+    getAlbumByProperty(value: string, prop: AlbumProperty) {
+        return albums.find((album) => album[prop] === value);
     }
 
     update(id: string, updateAlbumDto: UpdateAlbumDto) {
