@@ -87,18 +87,24 @@ export class FavoritesService {
         };
 
         favs.albums.forEach((id) => {
-            const album = this.albumsService.findOne(id);
-            favoritesResp.albums.push(album);
+            try {
+                const album = this.albumsService.findOne(id);
+                favoritesResp.albums.push(album);
+            } catch {}
         });
 
         favs.artists.forEach((id) => {
-            const artist = this.artistsService.findOne(id);
-            favoritesResp.artists.push(artist);
+            try {
+                const artist = this.artistsService.findOne(id);
+                favoritesResp.artists.push(artist);
+            } catch {}
         });
 
         favs.tracks.forEach((id) => {
-            const track = this.tracksService.getTrack(id);
-            favoritesResp.tracks.push(track);
+            try {
+                const track = this.tracksService.getTrack(id);
+                favoritesResp.tracks.push(track);
+            } catch {}
         });
 
         return favoritesResp;

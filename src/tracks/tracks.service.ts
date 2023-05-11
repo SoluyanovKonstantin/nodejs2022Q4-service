@@ -57,6 +57,7 @@ export class TracksService {
         if (trackIndex === -1) {
             throw new HttpException('not found', HttpStatus.NOT_FOUND);
         }
+
         tracks.splice(trackIndex, 1);
         return;
     }
