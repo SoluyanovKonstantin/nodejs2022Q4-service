@@ -1,23 +1,40 @@
+import { ModuleRef } from '@nestjs/core';
 import { AlbumsService } from './../albums/albums.service';
 import { ArtistsService } from './../artists/artists.service';
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import {
+    HttpException,
+    HttpStatus,
+    Injectable,
+    OnModuleInit,
+} from '@nestjs/common';
 import { Favorite } from './entities/favorite.entity';
 import { TracksService } from 'src/tracks/tracks.service';
 import { FavoriteResponseDto } from './dto/favorite-response.dto';
 
 const favs: Favorite = {
+    id: 0,
     artists: [],
     albums: [],
     tracks: [],
 };
 
 @Injectable()
-export class FavoritesService {
+export class FavoritesService implements OnModuleInit {
+    private artistsService: ArtistsService;
+    private tracksService: TracksService;
     constructor(
-        private tracksService: TracksService,
-        private artistsService: ArtistsService,
         private albumsService: AlbumsService,
+        private moduleRef: ModuleRef,
     ) {}
+
+    onModuleInit() {
+        this.tracksService = this.moduleRef.get(TracksService, {
+            strict: false,
+        });
+        this.artistsService = this.moduleRef.get(ArtistsService, {
+            strict: false,
+        });
+    }
 
     addArtist(id: string) {
         try {
@@ -87,24 +104,18 @@ export class FavoritesService {
         };
 
         favs.albums.forEach((id) => {
-            try {
-                const album = this.albumsService.findOne(id);
-                favoritesResp.albums.push(album);
-            } catch {}
+            const album = this.albumsService.findOne(id);
+            favoritesResp.albums.push(album);
         });
 
         favs.artists.forEach((id) => {
-            try {
-                const artist = this.artistsService.findOne(id);
-                favoritesResp.artists.push(artist);
-            } catch {}
+            const artist = this.artistsService.findOne(id);
+            favoritesResp.artists.push(artist);
         });
 
         favs.tracks.forEach((id) => {
-            try {
-                const track = this.tracksService.getTrack(id);
-                favoritesResp.tracks.push(track);
-            } catch {}
+            const track = this.tracksService.getTrack(id);
+            favoritesResp.tracks.push(track);
         });
 
         return favoritesResp;

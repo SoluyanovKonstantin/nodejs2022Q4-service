@@ -1,11 +1,16 @@
+import { ModuleRef } from '@nestjs/core';
 import { TracksService } from 'src/tracks/tracks.service';
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import {
+    HttpException,
+    HttpStatus,
+    Injectable,
+    OnModuleInit,
+} from '@nestjs/common';
 import { CreateAlbumDto } from './dto/create-album.dto';
 import { UpdateAlbumDto } from './dto/update-album.dto';
 import { Album } from './entities/album.entity';
 import { v4 } from 'uuid';
-
-const albums: Album[] = [];
+import { FavoritesService } from 'src/favorites/favorites.service';
 
 export enum AlbumProperty {
     Id = 'id', // uuid v4
@@ -15,33 +20,45 @@ export enum AlbumProperty {
 }
 
 @Injectable()
-export class AlbumsService {
-    constructor(private tracksService: TracksService) {}
+export class AlbumsService implements OnModuleInit {
+    private albums: Album[] = [];
+    private favoritesService: FavoritesService;
+    private tracksService: TracksService;
+
+    constructor(private moduleRef: ModuleRef) {}
+    onModuleInit() {
+        this.tracksService = this.moduleRef.get(TracksService, {
+            strict: false,
+        });
+        this.favoritesService = this.moduleRef.get(FavoritesService, {
+            strict: false,
+        });
+    }
 
     create(createAlbumDto: CreateAlbumDto) {
-        albums.push({
+        this.albums.push({
             id: v4(),
             ...createAlbumDto,
         });
-        return albums[albums.length - 1];
+        return this.albums[this.albums.length - 1];
     }
 
     findAll() {
-        return albums;
+        return this.albums;
     }
 
     findOne(id: string) {
-        const album = albums.find((album) => album.id === id);
+        const album = this.albums.find((album) => album.id === id);
         if (!album) throw new HttpException('not found', HttpStatus.NOT_FOUND);
         return album;
     }
 
     getAlbumByProperty(value: string, prop: AlbumProperty) {
-        return albums.find((album) => album[prop] === value);
+        return this.albums.find((album) => album[prop] === value);
     }
 
     update(id: string, updateAlbumDto: UpdateAlbumDto) {
-        const album = albums.find((album) => {
+        const album = this.albums.find((album) => {
             if (album.id === id) {
                 album.artistId = updateAlbumDto.artistId;
                 album.name = updateAlbumDto.name;
@@ -58,7 +75,7 @@ export class AlbumsService {
     }
 
     remove(id: string) {
-        const findIndex = albums.findIndex((artist) => artist.id === id);
+        const findIndex = this.albums.findIndex((artist) => artist.id === id);
         if (findIndex === -1)
             throw new HttpException('not found', HttpStatus.NOT_FOUND);
 
@@ -67,7 +84,11 @@ export class AlbumsService {
             track.albumId = null;
         }
 
-        albums.splice(findIndex, 1);
+        try {
+            this.favoritesService.removeAlbum(id);
+        } catch (error) {}
+
+        this.albums.splice(findIndex, 1);
         return;
     }
 }

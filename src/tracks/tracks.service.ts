@@ -1,7 +1,14 @@
-import { HttpException, Injectable, HttpStatus } from '@nestjs/common';
+import {
+    HttpException,
+    Injectable,
+    HttpStatus,
+    OnModuleInit,
+} from '@nestjs/common';
 import { v4 } from 'uuid';
 import { Track } from './entities/track.entity';
 import { CreateTrackDto } from './dto/create-track.dto';
+import { FavoritesService } from 'src/favorites/favorites.service';
+import { ModuleRef } from '@nestjs/core';
 
 const tracks: Track[] = [];
 
@@ -14,7 +21,15 @@ export enum TrackPropery {
 }
 
 @Injectable()
-export class TracksService {
+export class TracksService implements OnModuleInit {
+    private favoritesService: FavoritesService;
+    constructor(private moduleRef: ModuleRef) {}
+    onModuleInit() {
+        this.favoritesService = this.moduleRef.get(FavoritesService, {
+            strict: false,
+        });
+    }
+
     getTracks() {
         return tracks;
     }
@@ -57,6 +72,10 @@ export class TracksService {
         if (trackIndex === -1) {
             throw new HttpException('not found', HttpStatus.NOT_FOUND);
         }
+
+        try {
+            this.favoritesService.removeTrack(id);
+        } catch (error) {}
 
         tracks.splice(trackIndex, 1);
         return;

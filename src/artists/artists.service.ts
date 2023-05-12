@@ -1,20 +1,37 @@
 import { FavoritesService } from 'src/favorites/favorites.service';
 import { TrackPropery, TracksService } from 'src/tracks/tracks.service';
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import {
+    HttpException,
+    HttpStatus,
+    Injectable,
+    OnModuleInit,
+} from '@nestjs/common';
 import { CreateArtistDto } from './dto/create-artist.dto';
 import { UpdateArtistDto } from './dto/update-artist.dto';
 import { Artist } from './entities/artist.entity';
 import { v4 } from 'uuid';
 import { AlbumProperty, AlbumsService } from 'src/albums/albums.service';
+import { ModuleRef } from '@nestjs/core';
 
 const artists: Artist[] = [];
 
 @Injectable()
-export class ArtistsService {
+export class ArtistsService implements OnModuleInit {
+    private favoritesService: FavoritesService;
+    private tracksService: TracksService;
     constructor(
-        private tracksService: TracksService,
         private albumsService: AlbumsService,
+        private moduleRef: ModuleRef,
     ) {}
+
+    onModuleInit() {
+        this.tracksService = this.moduleRef.get(TracksService, {
+            strict: false,
+        });
+        this.favoritesService = this.moduleRef.get(FavoritesService, {
+            strict: false,
+        });
+    }
 
     create(createArtistDto: CreateArtistDto) {
         artists.push({
@@ -66,6 +83,10 @@ export class ArtistsService {
             id,
             AlbumProperty.ArtistId,
         );
+
+        try {
+            this.favoritesService.removeArtist(id);
+        } catch (error) {}
 
         if (album) album.artistId = null;
 

@@ -10,6 +10,8 @@ import { Track } from './tracks/entities/track.entity';
 import { Artist } from './artists/entities/artist.entity';
 import { AlbumsModule } from './albums/albums.module';
 import { FavoritesModule } from './favorites/favorites.module';
+import { Favorite } from './favorites/entities/favorite.entity';
+import { Album } from './albums/entities/album.entity';
 
 @Module({
     imports: [
@@ -20,7 +22,7 @@ import { FavoritesModule } from './favorites/favorites.module';
             username: 'postgres',
             password: 'diablo22',
             database: 'nodejs2022Q4',
-            entities: [User, Track, Artist],
+            entities: [User, Track, Artist, Favorite, Album],
             synchronize: true,
         }),
         UsersModule,
