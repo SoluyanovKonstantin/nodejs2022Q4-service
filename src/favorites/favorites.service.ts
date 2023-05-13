@@ -10,13 +10,8 @@ import {
 import { Favorite } from './entities/favorite.entity';
 import { TracksService } from 'src/tracks/tracks.service';
 import { FavoriteResponseDto } from './dto/favorite-response.dto';
-
-const favs: Favorite = {
-    id: 0,
-    artists: [],
-    albums: [],
-    tracks: [],
-};
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
 
 @Injectable()
 export class FavoritesService implements OnModuleInit {
@@ -25,9 +20,22 @@ export class FavoritesService implements OnModuleInit {
     constructor(
         private albumsService: AlbumsService,
         private moduleRef: ModuleRef,
+        @InjectRepository(Favorite)
+        private favoritesRepository: Repository<Favorite>,
     ) {}
 
-    onModuleInit() {
+    async onModuleInit() {
+        const isFavoritesExist = await this.favoritesRepository.exist({
+            where: { id: 1 },
+        });
+        if (!isFavoritesExist) {
+            this.favoritesRepository.save({
+                id: 1,
+                artists: [],
+                albums: [],
+                tracks: [],
+            });
+        }
         this.tracksService = this.moduleRef.get(TracksService, {
             strict: false,
         });
@@ -36,10 +44,14 @@ export class FavoritesService implements OnModuleInit {
         });
     }
 
-    addArtist(id: string) {
+    async addArtist(id: string) {
         try {
             this.artistsService.findOne(id);
-            favs.artists.push(id);
+            const fav = await this.favoritesRepository.findOne({
+                where: { id: 1 },
+            });
+            fav.artists.push(id);
+            return await this.favoritesRepository.update(1, fav);
         } catch {
             throw new HttpException(
                 `doesn't exist`,
@@ -47,19 +59,27 @@ export class FavoritesService implements OnModuleInit {
             );
         }
     }
-    removeArtist(id: string) {
+    async removeArtist(id: string) {
+        const favs = await this.favoritesRepository.findOne({
+            where: { id: 1 },
+        });
         const artistId = favs.artists.findIndex((artist) => artist === id);
         if (artistId === -1) {
             throw new HttpException('not found', HttpStatus.NOT_FOUND);
         }
 
         favs.artists.splice(artistId, 1);
+        return await this.favoritesRepository.update(1, favs);
     }
 
-    addTrack(id: string) {
+    async addTrack(id: string) {
         try {
-            this.tracksService.getTrack(id);
+            await this.tracksService.getTrack(id);
+            const favs = await this.favoritesRepository.findOne({
+                where: { id: 1 },
+            });
             favs.tracks.push(id);
+            return await this.favoritesRepository.update(1, favs);
         } catch {
             throw new HttpException(
                 `doesn't exist`,
@@ -67,19 +87,27 @@ export class FavoritesService implements OnModuleInit {
             );
         }
     }
-    removeTrack(id: string) {
+    async removeTrack(id: string) {
+        const favs = await this.favoritesRepository.findOne({
+            where: { id: 1 },
+        });
         const trackId = favs.tracks.findIndex((artist) => artist === id);
         if (trackId === -1) {
             throw new HttpException('not found', HttpStatus.NOT_FOUND);
         }
 
         favs.tracks.splice(trackId, 1);
+        return await this.favoritesRepository.update(1, favs);
     }
 
-    addAlbum(id: string) {
+    async addAlbum(id: string) {
         try {
+            const favs = await this.favoritesRepository.findOne({
+                where: { id: 1 },
+            });
             this.albumsService.findOne(id);
             favs.albums.push(id);
+            return await this.favoritesRepository.update(1, favs);
         } catch {
             throw new HttpException(
                 `doesn't exist`,
@@ -87,36 +115,44 @@ export class FavoritesService implements OnModuleInit {
             );
         }
     }
-    removeAlbum(id: string) {
+    async removeAlbum(id: string) {
+        const favs = await this.favoritesRepository.findOne({
+            where: { id: 1 },
+        });
         const albumId = favs.albums.findIndex((artist) => artist === id);
         if (albumId === -1) {
             throw new HttpException('not found', HttpStatus.NOT_FOUND);
         }
 
         favs.albums.splice(albumId, 1);
+        return await this.favoritesRepository.update(1, favs);
     }
 
-    findAll() {
+    async findAll() {
         const favoritesResp: FavoriteResponseDto = {
             artists: [],
             albums: [],
             tracks: [],
         };
 
-        favs.albums.forEach((id) => {
-            const album = this.albumsService.findOne(id);
+        const favs = await this.favoritesRepository.findOne({
+            where: { id: 1 },
+        });
+
+        for (let index = 0; index < favs.albums.length; index++) {
+            const album = this.albumsService.findOne(favs.albums[index]);
             favoritesResp.albums.push(album);
-        });
+        }
 
-        favs.artists.forEach((id) => {
-            const artist = this.artistsService.findOne(id);
+        for (let index = 0; index < favs.artists.length; index++) {
+            const artist = this.artistsService.findOne(favs.artists[index]);
             favoritesResp.artists.push(artist);
-        });
+        }
 
-        favs.tracks.forEach((id) => {
-            const track = this.tracksService.getTrack(id);
-            favoritesResp.tracks.push(track);
-        });
+        for (let index = 0; index < favs.tracks.length; index++) {
+            const track = this.tracksService.getTrack(favs.tracks[index]);
+            favoritesResp.tracks.push(await track);
+        }
 
         return favoritesResp;
     }

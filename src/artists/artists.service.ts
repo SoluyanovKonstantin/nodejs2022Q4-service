@@ -1,5 +1,5 @@
 import { FavoritesService } from 'src/favorites/favorites.service';
-import { TrackPropery, TracksService } from 'src/tracks/tracks.service';
+import { TracksService } from 'src/tracks/tracks.service';
 import {
     HttpException,
     HttpStatus,
@@ -67,17 +67,12 @@ export class ArtistsService implements OnModuleInit {
         return artist;
     }
 
-    remove(id: string) {
+    async remove(id: string) {
         const findIndex = artists.findIndex((artist) => artist.id === id);
         if (findIndex === -1)
             throw new HttpException('not found', HttpStatus.NOT_FOUND);
 
-        const track = this.tracksService.getTrackByProperty(
-            id,
-            TrackPropery.ArtistId,
-        );
-
-        if (track) track.artistId = null;
+        await this.tracksService.removeArtistIdFromTrack(id);
 
         const album = this.albumsService.getAlbumByProperty(
             id,
@@ -85,7 +80,7 @@ export class ArtistsService implements OnModuleInit {
         );
 
         try {
-            this.favoritesService.removeArtist(id);
+            await this.favoritesService.removeArtist(id);
         } catch (error) {}
 
         if (album) album.artistId = null;

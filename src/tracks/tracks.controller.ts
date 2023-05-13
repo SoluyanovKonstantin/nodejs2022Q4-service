@@ -13,7 +13,6 @@ import {
 } from '@nestjs/common';
 import { ApiParam, ApiTags } from '@nestjs/swagger';
 import { CreateTrackDto } from './dto/create-track.dto';
-import { Track } from './entities/track.entity';
 
 @ApiTags('track')
 @Controller('track')
@@ -21,7 +20,7 @@ export class TracksController {
     constructor(private tracksService: TracksService) {}
 
     @Get()
-    getUTracks(): Track[] {
+    getUTracks() {
         return this.tracksService.getTracks();
     }
 

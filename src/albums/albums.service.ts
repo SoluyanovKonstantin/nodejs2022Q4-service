@@ -74,18 +74,15 @@ export class AlbumsService implements OnModuleInit {
         return album;
     }
 
-    remove(id: string) {
+    async remove(id: string) {
         const findIndex = this.albums.findIndex((artist) => artist.id === id);
         if (findIndex === -1)
             throw new HttpException('not found', HttpStatus.NOT_FOUND);
 
-        const track = this.tracksService.getTrackByAlbumId(id);
-        if (track) {
-            track.albumId = null;
-        }
+        await this.tracksService.removeAlbumFromTrackById(id);
 
         try {
-            this.favoritesService.removeAlbum(id);
+            await this.favoritesService.removeAlbum(id);
         } catch (error) {}
 
         this.albums.splice(findIndex, 1);

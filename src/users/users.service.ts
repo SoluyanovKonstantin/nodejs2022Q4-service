@@ -3,11 +3,16 @@ import { v4 as uuid } from 'uuid';
 import { User } from './entities/user.entity';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
-
-const users: User[] = [];
+import { Repository } from 'typeorm';
+import { InjectRepository } from '@nestjs/typeorm';
 
 @Injectable()
 export class UsersService {
+    constructor(
+        @InjectRepository(User)
+        private userRepository: Repository<User>,
+    ) {}
+
     createUser(userDto: CreateUserDto) {
         const userToDB: User = {
             id: uuid(),
@@ -18,25 +23,29 @@ export class UsersService {
             updatedAt: new Date().getTime(),
         };
 
-        users.push(userToDB);
-
-        return userToDB;
+        return this.userRepository
+            .save(userToDB)
+            .catch((err) => console.error(err));
     }
 
     getUsers() {
-        return users;
+        return this.userRepository.find();
     }
 
-    getUser(id: string) {
-        const user = users.find((user) => user.id === id);
+    async getUser(id: string) {
+        const user = await this.userRepository.findOne({ where: { id } });
         if (!user) {
             throw new HttpException(`user doesn't find`, HttpStatus.NOT_FOUND);
         }
         return user;
     }
 
-    updateUserPassword(updatePasswordDto: UpdateUserDto, id: string) {
-        const newUser = users.find((user) => user.id === id);
+    async updateUserPassword(updatePasswordDto: UpdateUserDto, id: string) {
+        const newUser = await this.userRepository
+            .findOne({ where: { id } })
+            .catch((err) => {
+                console.error(err);
+            });
         if (!newUser) {
             throw new HttpException(`user doesn't exist`, HttpStatus.NOT_FOUND);
         }
@@ -44,18 +53,25 @@ export class UsersService {
             newUser.version++;
             newUser.updatedAt = new Date().getTime();
             newUser.password = updatePasswordDto.newPassword;
+
+            await this.userRepository.update(id, newUser);
             return newUser;
         } else {
             throw new HttpException('wrong password', HttpStatus.FORBIDDEN);
         }
     }
 
-    deleteUser(id: string) {
-        const index = users.findIndex((user) => user.id === id);
-        if (index === -1) {
+    async deleteUser(id: string) {
+        const isExist = await this.userRepository
+            .exist({ where: { id } })
+            .catch((err) => {
+                console.error(err);
+            });
+        if (!isExist) {
             throw new HttpException(`user doesn't exist`, HttpStatus.NOT_FOUND);
         }
-
-        users.splice(index, 1);
+        return this.userRepository.delete(id).catch((err) => {
+            console.error(err);
+        });
     }
 }

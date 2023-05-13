@@ -14,9 +14,9 @@ export class User {
     @Column()
     version: number; // integer number, increments on update
 
-    @Column()
+    @Column('bigint')
     createdAt: number; // timestamp of creation
 
-    @Column()
+    @Column('bigint')
     updatedAt: number; // timestamp of last update
 }

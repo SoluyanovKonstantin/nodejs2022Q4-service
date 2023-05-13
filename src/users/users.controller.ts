@@ -12,7 +12,6 @@ import {
 } from '@nestjs/common';
 import { ApiParam, ApiTags } from '@nestjs/swagger';
 import { UsersService } from './users.service';
-import { User } from './entities/user.entity';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 
@@ -28,7 +27,7 @@ export class UsersController {
 
     @ApiParam({ name: 'id' })
     @Get(':id')
-    getUser(@Param('id', ParseUUIDPipe) id: string): User {
+    getUser(@Param('id', ParseUUIDPipe) id: string) {
         return this.usersService.getUser(id);
     }
 
@@ -44,13 +43,13 @@ export class UsersController {
     updateUserPassword(
         @Param('id', ParseUUIDPipe) id: string,
         @Body() body: UpdateUserDto,
-    ): User {
+    ) {
         return this.usersService.updateUserPassword(body, id);
     }
 
     @HttpCode(HttpStatus.NO_CONTENT)
     @Delete(':id')
     deleteUser(@Param('id', ParseUUIDPipe) id: string) {
-        this.usersService.deleteUser(id);
+        return this.usersService.deleteUser(id);
     }
 }

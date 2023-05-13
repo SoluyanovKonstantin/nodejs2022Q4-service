@@ -24,6 +24,7 @@ import { Album } from './albums/entities/album.entity';
             database: 'nodejs2022Q4',
             entities: [User, Track, Artist, Favorite, Album],
             synchronize: true,
+            dropSchema: true,
         }),
         UsersModule,
         TracksModule,
