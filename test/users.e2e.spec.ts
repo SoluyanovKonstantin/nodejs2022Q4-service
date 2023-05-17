@@ -112,7 +112,6 @@ describe('Users (e2e)', () => {
             expect(typeof createdAt).toBe('number');
             expect(typeof updatedAt).toBe('number');
             expect(createdAt === updatedAt).toBe(true);
-            console.log(id);
             const cleanupResponse = await unauthorizedRequest
                 .delete(usersRoutes.delete(id))
                 .set(commonHeaders);

@@ -46,7 +46,7 @@ export class FavoritesService implements OnModuleInit {
 
     async addArtist(id: string) {
         try {
-            this.artistsService.findOne(id);
+            await this.artistsService.findOne(id);
             const fav = await this.favoritesRepository.findOne({
                 where: { id: 1 },
             });
@@ -145,7 +145,9 @@ export class FavoritesService implements OnModuleInit {
         }
 
         for (let index = 0; index < favs.artists.length; index++) {
-            const artist = this.artistsService.findOne(favs.artists[index]);
+            const artist = await this.artistsService.findOne(
+                favs.artists[index],
+            );
             favoritesResp.artists.push(artist);
         }
 

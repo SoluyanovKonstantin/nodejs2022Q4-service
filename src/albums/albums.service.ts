@@ -57,6 +57,11 @@ export class AlbumsService implements OnModuleInit {
         return this.albums.find((album) => album[prop] === value);
     }
 
+    removeArtistFromAlbum(artistId: string) {
+        const album = this.albums.find((album) => album.artistId === artistId);
+        if (album) album.artistId = null;
+    }
+
     update(id: string, updateAlbumDto: UpdateAlbumDto) {
         const album = this.albums.find((album) => {
             if (album.id === id) {
