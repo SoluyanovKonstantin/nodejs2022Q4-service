@@ -105,7 +105,7 @@ export class FavoritesService implements OnModuleInit {
             const favs = await this.favoritesRepository.findOne({
                 where: { id: 1 },
             });
-            this.albumsService.findOne(id);
+            await this.albumsService.findOne(id);
             favs.albums.push(id);
             return await this.favoritesRepository.update(1, favs);
         } catch {
@@ -140,7 +140,7 @@ export class FavoritesService implements OnModuleInit {
         });
 
         for (let index = 0; index < favs.albums.length; index++) {
-            const album = this.albumsService.findOne(favs.albums[index]);
+            const album = await this.albumsService.findOne(favs.albums[index]);
             favoritesResp.albums.push(album);
         }
 
